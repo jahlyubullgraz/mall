@@ -1,0 +1,20 @@
+<!DOCTYPE struts PUBLIC  
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"  
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="menu" extends="struts-default" namespace="/menu">
+    	<action name="menuList" class="menuAction" method="list">
+    	</action>
+    	<action name="menuAdd" class="menuAction" method="add">
+    	</action>
+    	<action name="menuSave" class="menuAction" method="save">
+    	</action>
+    	<action name="menuEdit" class="menuAction" method="info">
+    	</action>
+    	<action name="menuUpdate" class="menuAction" method="update">
+    	</action>
+    	<action name="menuDelete" class="menuAction" method="delete">
+    	</action>
+	</package>
+</struts>  
