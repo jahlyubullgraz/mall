@@ -1,0 +1,20 @@
+<!DOCTYPE struts PUBLIC  
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"  
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="role" extends="struts-default" namespace="/role">
+    	<action name="roleList" class="roleAction" method="list">
+    	</action>
+    	<action name="roleAdd" class="roleAction" method="add">
+    	</action>
+    	<action name="roleSave" class="roleAction" method="save">
+    	</action>
+    	<action name="roleEdit" class="roleAction" method="info">
+    	</action>
+    	<action name="roleUpdate" class="roleAction" method="update">
+    	</action>
+    	<action name="roleDelete" class="roleAction" method="delete">
+    	</action>
+	</package>
+</struts>  

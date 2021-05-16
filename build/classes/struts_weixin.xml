@@ -1,0 +1,12 @@
+<!DOCTYPE struts PUBLIC  
+    "-//Apache Software Foundation//DTD Struts Configuration 2.3//EN"  
+    "http://struts.apache.org/dtds/struts-2.3.dtd">
+
+<struts>
+	<package name="auth" extends="struts-default" namespace="/api">
+		<action name="auth" class="weixinAction" method="auth"></action>
+		<action name="main" class="weixinAction" method="main"></action>
+		<action name="callback" class="weixinAction" method="callback"></action>
+		<action name="order" class="weixinAction" method="order"></action>
+	</package>
+</struts>  
