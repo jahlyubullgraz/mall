@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>9号购物商城</title>
+<title>GENOBIEN健诺嘉-三级分销</title>
 <!-- ico -->
 <link href="res/images/jylogo.ico " rel="shortcut icon"type="image/x-icon" />
 
@@ -111,6 +111,7 @@ function choose_bg() {
     <div class="setting"><a href="javascript:;" onclick="choose_bg();" title="更换背景"><span class="glyphicon glyphicon-th-large"></span></a></div>
 	<div class="login_box">
         <div class="login_logo">
+            <img src="res/images/logo_1.png" >
         </div>
         <div class="login_form">
     		<form action="adminLoginResult" class="ajax_form" method="post">
@@ -130,7 +131,9 @@ function choose_bg() {
     		</form>
         </div>
 	</div>
+	<div style="    text-align:center;">Copyright &copy; 2014 - 2016 <a href="http://www.genobien.com" target="_blank">GENOBIEN健诺嘉</a> </div>
 	<div></div>
+	<div style="   text-align:center;padding: 10px 0px;">技术支持：<a>厦门东南正新信息科技有限公司</a></div>
 </div>
 </body>
 </html>

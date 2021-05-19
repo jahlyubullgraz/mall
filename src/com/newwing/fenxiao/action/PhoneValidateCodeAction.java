@@ -19,7 +19,6 @@ import com.newwing.fenxiao.entities.User;
 import com.newwing.fenxiao.service.IConfigService;
 import com.newwing.fenxiao.service.IPhoneValidateCodeService;
 import com.newwing.fenxiao.service.IUserService;
-import com.newwing.fenxiao.utils.HttpSender;
 import com.newwing.fenxiao.utils.SendSms;
 
 @Controller("phoneValidateCodeAction")
@@ -38,9 +37,9 @@ public class PhoneValidateCodeAction extends BaseAction {
 	private PhoneValidateCode phoneValidateCode;
 
 	public void createCode() {
-//		String name = this.request.getParameter("name");
+		String name = this.request.getParameter("name");
 		String phone = this.request.getParameter("phone");
-		User findUser = this.userService.getUserByPhone(phone);
+		User findUser = this.userService.getUserByNameAndPhone(name, phone);
 		JSONObject json = new JSONObject();
 		PrintWriter out = null;
 		try {
@@ -122,57 +121,6 @@ public class PhoneValidateCodeAction extends BaseAction {
 			}
 		}
 	}
-	
-	/**
-	 * 发送短信接口
-	 */
-	public void sendSms() {
-		String phone = this.request.getParameter("phone");
-		User findUser = this.userService.getUserByPhone(phone);
-		JSONObject json = new JSONObject();
-		PrintWriter out = null;
-		try {
-			out = this.response.getWriter();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		if (findUser != null) {
-			json.put("status", "0");
-			json.put("message", "用户名或者手机号已存在");
-			out.print(json.toString());
-			out.flush();
-			out.close();
-		} else {
-			Random random = new Random();
-			int code = random.nextInt(99999) + 100000;
-			PhoneValidateCode phoneValidateCode = new PhoneValidateCode();
-			phoneValidateCode.setCreateDate(new Date());
-			phoneValidateCode.setDeleted(false);
-			phoneValidateCode.setCode("" + code);
-			phoneValidateCode.setPhone(phone);
-			phoneValidateCode.setStatus(Integer.valueOf(0));
-			this.phoneValidateCodeService.saveOrUpdate(phoneValidateCode);
-//			Config findConfig = (Config) this.configService.findById(Config.class, 1);
-			String smsContent = "您的注册验证码是:" + code + ",10分钟内有效";
-			try {
-//				SendSms.send(smsContent, phone);
-				HttpSender.batchSend(phone, smsContent, true, null);// 調用新的短信通道
-//			} catch (IOException e) {
-			} catch (Exception e) {
-				json.put("status", "0");
-				json.put("message", "验证码发送失败，请重试");
-				out.print(json.toString());
-				out.flush();
-				out.close();
-			}
-			json.put("status", "1");
-			json.put("message", "短信验证码发送成功");
-			out.print(json.toString());
-			out.flush();
-			out.close();
-		}
-	}
-	
 
 	public PhoneValidateCode getPhoneValidateCode() {
 		return this.phoneValidateCode;

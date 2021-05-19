@@ -14,17 +14,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
 	<meta name="apple-mobile-web-app-capable" content="yes">
 	<meta name="apple-mobile-web-app-status-bar-style" content="black">
 	<meta content="telephone=no" name="format-detection">
+	<!--  ico  -->
 	<link href="../res/images/jylogo.ico " rel="shortcut icon"type="image/x-icon" />
 	<link rel="stylesheet" type="text/css" href="../css/style.css">
 	<link rel="stylesheet" type="text/css" href="../css/cart.css">
-	<style type="text/css">
-		.mainBgColor{
-			background:#c72525!important;
-		}
-		.white{
-			color:#FFF!important;
-		}
-	</style>
 	<title>我的信息</title>
 	<script type="text/javascript" async="" src="../js/aywmq.js"></script>
 	<script async="" src="../js/analytics.js"></script>
@@ -46,59 +39,71 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
     </script>
 </head>
 <body>
-    <div class="sn-nav mainBgColor">
+    <div class="sn-nav">
 		<div class="sn-nav-back"><a href="javascript:history.back(-1)">返回</a></div>
-		<div class="sn-nav-title of white" id="addAddr">我的信息</div>
+		<div class="sn-nav-title of" id="addAddr">我的信息</div>
+		<div class="sn-nav-right tr pr"><a href="index.jsp">首页</a></div>
 	</div>
+
 	<section class="sn-main pr">
 		<div class="input-a sn-block wbox mt30 pr">
-			<div style="width:20%">
-				<span>姓名:</span>
-			</div>
+			<span>编号:</span>
 			<div class="wbox-flex ml30 pr">
-				<input type="text" name="user.sex" value="${loginUser.name }" placeholder="请输入姓名" />
+				${loginUser.no }
 			</div>
 			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
 		</div>
 		<div class="input-a sn-block wbox mt30 pr">
-			<div style="width:20%">
-				<span>性别:</span>
-			</div>
+			<span>用户名:</span>
 			<div class="wbox-flex ml30 pr">
-				<input type="text" name="user.sex" value="${loginUser.name }" />
+				${loginUser.name }
 			</div>
 			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
 		</div>
 		<div class="input-a sn-block wbox mt30 pr">
-			<div style="width:20%">
-				<span>手机号:</span>
-			</div>
+			<span>手机号:</span>
 			<div class="wbox-flex ml30 pr">
-				<input type="text" name="user.phone" value="${loginUser.phone}" readonly />
+				${loginUser.phone }
 			</div>
 			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
 		</div>
 		<div class="input-a sn-block wbox mt30 pr">
-			<div style="width:20%">
-				<span>详细地址:</span>
-			</div>
-			<div class="wbox-flex ml30 pr">
-				<input type="text" name="user.address" value="${loginUser.address}" placeholder="请输入详细地址"/>
+			<span>货币:</span>
+			<div class="wbox-flex ml30 pr" id="balance">
+				${loginUser.balance }元
 			</div>
 			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
 		</div>
 		<div class="input-a sn-block wbox mt30 pr">
-			<div style="width:20%">
-				<span>备注:</span>
-			</div>
-			<div class="wbox-flex ml30 pr">
-				<input type="text" name="user.address" value="${loginUser.remark}" placeholder="请输入备注" />
+			<span>奖金:</span>
+			<div class="wbox-flex ml30 pr" id="commission">
+				${loginUser.commission }元
 			</div>
 			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
 		</div>
-		<a href="changePassword.jsp" class="first-step sn-btn sn-btn-big sn-btn-block m30 sn-btn-positive mainBgColor">保存</a>
+		<div class="input-a sn-block wbox mt30 pr">
+			<span>登录次数:</span>
+			<div class="wbox-flex ml30 pr">
+				${loginUser.loginCount }次
+			</div>
+			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
+		</div>
+		<div class="input-a sn-block wbox mt30 pr">
+			<span>上次登录时间:</span>
+			<div class="wbox-flex ml30 pr">
+				<fmt:formatDate value="${loginUser.lastLoginTime}" pattern="yyyy-MM-dd HH:mm:ss" />
+			</div>
+			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
+		</div>
+		<div class="input-a sn-block wbox mt30 pr">
+			<span>上次登录IP:</span>
+			<div class="wbox-flex ml30 pr">
+				${loginUser.lastLoginIp }
+			</div>
+			<em class="delete" style="display:none" name="Wap_reg_person_001"></em>
+		</div>
+		<a href="changePassword.jsp" name="Wap_reg_person_005" class="first-step sn-btn sn-btn-big sn-btn-block m30 sn-btn-positive">修改密码</a>
 	</section>
 	<script type="text/javascript" src="../js/zepto.min.js"></script>
 
-</body>
-</html>
+</body></html>

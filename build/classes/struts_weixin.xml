@@ -7,6 +7,5 @@
 		<action name="auth" class="weixinAction" method="auth"></action>
 		<action name="main" class="weixinAction" method="main"></action>
 		<action name="callback" class="weixinAction" method="callback"></action>
-		<action name="order" class="weixinAction" method="order"></action>
 	</package>
 </struts>  

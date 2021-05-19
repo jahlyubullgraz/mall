@@ -10,8 +10,6 @@
     	<action name="withdrawAdd" class="withdrawAction" method="add">
     		<param name="ftlFileName">withdrawAdd.ftl</param>
     	</action>
-    	<action name="withdrawSave" class="withdrawAction" method="save">
-    	</action>
     	<action name="withdrawEdit" class="withdrawAction" method="info">
     		<param name="ftlFileName">withdrawEdit.ftl</param>
     	</action>

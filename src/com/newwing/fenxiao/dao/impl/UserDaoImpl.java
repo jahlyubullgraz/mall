@@ -48,12 +48,6 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements IUserDao {
 		return user;
 	}
 	
-	public User getUserByNoAndType(String no, String type) {
-		String hql = "from User where no=:no and type=:type and deleted=0";
-		User user = (User) getSession().createQuery(hql).setString("no", no).setString("type", type).uniqueResult();
-		return user;
-	}
-	
 	public User getUserByOpenId(String openId) {
 		String hql = "from User where openId=:openId and deleted=0";
 		User user = (User) getSession().createQuery(hql).setString("openId", openId).uniqueResult();
@@ -81,13 +75,6 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements IUserDao {
 		List levelUserTodayStatusList = getSession().createQuery(hql).setString("no", no).list();
 		return levelUserTodayStatusList;
 	}
-	
-	public List<User> findProfitUserList() {
-		String hql = "from User where type = '4' ";
-
-		List profitUserList = getSession().createQuery(hql).list();
-		return profitUserList;
-	}
 
 	public User getUserByNameAndPhone(String name, String phone) {
 		String hql = "from User where name=:name and phone=:phone and deleted=0";
@@ -95,5 +82,4 @@ public class UserDaoImpl extends BaseDaoImpl<User> implements IUserDao {
 				.uniqueResult();
 		return user;
 	}
-	
 }

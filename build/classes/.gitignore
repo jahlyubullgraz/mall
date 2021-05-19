@@ -1,1 +1,17 @@
 /com/
+/struts_articleCate.xml
+/struts_commission.xml
+/struts_common.xml
+/struts_config.xml
+/struts_financial.xml
+/struts_kami.xml
+/struts_message.xml
+/struts_orders.xml
+/struts_phoneValidateCode.xml
+/struts_product.xml
+/struts_productCate.xml
+/struts_recharge.xml
+/struts_rechargeCard.xml
+/struts_user.xml
+/struts_weixin.xml
+/struts_withdraw.xml

@@ -23,9 +23,10 @@
                 <!--
                 <th orderField="name">手机号码</th>
                 <th orderField="grade">余额</th>
+                -->
                 <th orderField="idno">佣金</th>
-                 -->
                 <th orderField="idno">注册时间</th>
+                <th width="90">操作</th>
 			</tr>
 		</thead>
 		<tbody>
@@ -37,15 +38,13 @@
                 <!--
                 <td>${user.phone!""}</td>
                 <td>${user.balance}</td>
+                -->
                 <td>${user.commission!""}</td>
-                 -->
                 <td>${user.createDate}</td>
-                <!--
                 <td>
                     <a href="userEdit.action?id=${user.id?string('#')}" class="btn btn-green" data-toggle="dialog" data-width="800" data-height="400" data-id="userEdit" data-mask="true">编辑</a>
                     <a href="userDelete.action?id=${user.id?string('#')}" class="btn btn-red" data-toggle="doajax" data-confirm-msg="确定要删除该行信息吗？">删</a>
                 </td>
-                 -->
             </tr>
 		</#list>
 		</tbody>

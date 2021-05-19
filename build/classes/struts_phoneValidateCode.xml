@@ -4,8 +4,9 @@
 
 <struts>
 	<package name="phoneValidateCodeIndex" extends="struts-default" namespace="/">
-    	<action name="createPhoneCode" class="phoneValidateCodeAction" method="createCode"></action>
-    	<action name="validationCode" class="phoneValidateCodeAction" method="validationCode"></action>
-    	<action name="sendSms" class="phoneValidateCodeAction" method="sendSms"></action>
+    	<action name="createPhoneCode" class="phoneValidateCodeAction" method="createCode">
+    	</action>
+    	<action name="validationCode" class="phoneValidateCodeAction" method="validationCode">
+    	</action>
 	</package>
 </struts>  

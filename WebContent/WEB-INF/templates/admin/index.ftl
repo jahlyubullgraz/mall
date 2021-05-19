@@ -2,12 +2,12 @@
 <head>
 <meta http-equiv="content-type" content="text/html;charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>福建省9号购物商城</title>
+<title>GENOBIEN健诺嘉-三级分销</title>
 <!-- ico -->
 <link href="res/images/jylogo.ico " rel="shortcut icon"type="image/x-icon" />
 
-<meta name="Keywords" content="9号购物商城"/>
-<meta name="Description" content="9号购物商城后台管理系统"/> 
+<meta name="Keywords" content="东南正新网络newwing"/>
+<meta name="Description" content="东南正新网络newwing后台管理系统"/> 
 <!-- bootstrap - css -->
 <link href="../res/bjui/themes/css/bootstrap.min.css" rel="stylesheet">
 <!-- core - css -->
@@ -181,14 +181,14 @@ $(function(){
                         <div class="panel-body" >
                             <ul id="bjui-tree0" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true">
                                 <li data-id="10" data-pid="1" data-url="configEdit" data-tabid="configEdit">系统设置</li>
-                                <!--
                                 <li data-id="18" data-pid="1" data-url="adminList" data-tabid="adminList">管理员列表</li>
+                                <!--
                                 <li data-id="11" data-pid="1" data-url="articleCateList" data-tabid="articleCateList">文章栏目</li>
                                 <li data-id="12" data-pid="1" data-url="articleList" data-tabid="articleList">文章管理</li>
+                                -->
                                 <li data-id="12" data-pid="1" data-url="productCateList" data-tabid="productCateList">产品分类</li>
                                 <li data-id="12" data-pid="1" data-url="productList" data-tabid="productList">产品管理</li>
                                 <li data-id="15" data-pid="1" data-url="messageList" data-tabid="messageList">留言管理</li>
-                                -->
                                 <li data-id="15" data-pid="1" data-url="ordersList" data-tabid="ordersList">订单管理</li>
                                 <li data-id="15" data-pid="1" data-url="userList" data-tabid="userList">会员管理</li>
                                 <li data-id="15" data-pid="1" data-url="financialList" data-tabid="financialList">财务明细</li>
@@ -251,6 +251,7 @@ $(function(){
     <footer id="bjui-footer">
     		<span>Copyright &copy; 2012 - 2015 <a href="http://www.genobien.com" target="_blank">GENOBIEN健诺嘉</a> </span>
    		    <span>&nbsp</span> 
+    		<span>技术支持：<a>厦门东南正新信息科技有限公司</a></span>
     </footer>
 </body>
 </html>

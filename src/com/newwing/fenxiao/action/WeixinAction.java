@@ -1,35 +1,40 @@
 package com.newwing.fenxiao.action;
 
-import java.io.IOException;
-import java.io.PrintWriter;
+import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
 import java.net.URLEncoder;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Iterator;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TreeMap;
 
 import javax.annotation.Resource;
+import javax.servlet.ServletInputStream;
+import javax.servlet.http.HttpSession;
 
+import net.sf.json.JSONObject;
+
+import org.apache.commons.lang.StringUtils;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import com.newwing.fenxiao.entities.Commission;
 import com.newwing.fenxiao.entities.Config;
 import com.newwing.fenxiao.entities.Financial;
-import com.newwing.fenxiao.entities.OrderOther;
 import com.newwing.fenxiao.entities.Orders;
 import com.newwing.fenxiao.entities.User;
 import com.newwing.fenxiao.service.ICommissionService;
 import com.newwing.fenxiao.service.IConfigService;
 import com.newwing.fenxiao.service.IFinancialService;
-import com.newwing.fenxiao.service.IOrderOtherService;
 import com.newwing.fenxiao.service.IOrdersService;
 import com.newwing.fenxiao.service.IUserService;
-import com.newwing.fenxiao.service.IWeixinService;
-import com.newwing.fenxiao.utils.Base64;
+import com.newwing.fenxiao.utils.IpUtils;
 import com.newwing.fenxiao.utils.Md5;
 import com.weixin.utils.CommonUtil;
-
-import net.sf.json.JSONObject;
+import com.weixin.utils.GetWxOrderno;
+import com.weixin.utils.PayCommonUtil;
 
 /**
  * 微信客户端 Controller
@@ -46,33 +51,33 @@ public class WeixinAction extends BaseAction {
 	private IConfigService<Config> configService;
 	@Resource(name = "commissionService")
 	private ICommissionService<Commission> commissionService;
-	@Resource(name = "weixinService")
-	private IWeixinService weixinService;
 	
-	
-	private String appid = "wxcb1e625e652a1e19";
-	private String appsecret = "87f0c0b2d8523bd15ea2efed2abfcbbf";
+	private String appid = "wx80c6f861374d68fc";
+	private String appsecret = "0d75a21684944d43120ce82102046244";
 	private String partner = "1401404002";
 	private String partnerkey = "QHTqht201688HYDTxrxy1688NJZYCHIZ";
-	private String backUri = "http://www.wesdzsw.com/api/main";
+	private String backUri = "http://www.genobien.com/fx/api/main";
 	
 	@Resource(name = "ordersService")
 	private IOrdersService<Orders> ordersService;
 	@Resource(name = "userService")
 	private IUserService<User> userService;
-	@Resource(name = "orderOtherService")
-	private IOrderOtherService<OrderOther> orderOtherService;
+	
 	
 	/**
 	 * 授权页面
 	 */
 	public void auth() throws Exception {
-		String userNo = request.getParameter("userNo");
-		String type = request.getParameter("type");
-		backUri = backUri + "?userNo=" + userNo;
-		if (type != null && "qr".equals(type)) {
-			backUri = backUri + "&type=qr";
+		//共账号及商户相关参数
+		String tuijianren = request.getParameter("tuijianren");
+		if (tuijianren == null || "".equals(tuijianren)) {
+			tuijianren = "000";
 		}
+		//授权后要跳转的链接所需的参数一般有会员号，金额，订单号之类，
+		//最好自己带上一个加密字符串将金额加上一个自定义的key用MD5签名或者自己写的签名,
+		//比如 Sign = %3D%2F%CS% 
+		backUri = backUri+"?tuijianren=" + tuijianren;
+		//URLEncoder.encode 后可以在backUri 的url里面获取传递的所有参数
 		backUri = URLEncoder.encode(backUri);
 		//scope 参数视各自需求而定，这里用scope=snsapi_base 不弹出授权页面直接授权目的只获取统一支付接口的openid
 		String url = "https://open.weixin.qq.com/connect/oauth2/authorize?" +
@@ -93,8 +98,7 @@ public class WeixinAction extends BaseAction {
 		String headimgurl = null;
 		String nickname = null;
 		String code = request.getParameter("code");
-		String userNo = request.getParameter("userNo");
-		String type = request.getParameter("type");
+		String tuijianren = this.request.getParameter("tuijianren");// 推荐人
 		String URL = "https://api.weixin.qq.com/sns/oauth2/access_token?appid=" + appid
 				+ "&secret=" + appsecret
 				+ "&code=" + code
@@ -113,179 +117,172 @@ public class WeixinAction extends BaseAction {
 			this.response.sendRedirect("/api/auth");
 			return;
 		}
-		if (type != null && "qr".equals(type)) {
-			String qrCode = this.userService.generateQrCode(openId, request);
-			this.response.sendRedirect("../myQrCode.jsp?qrCode=" + qrCode);
-		} else {
-			this.response.sendRedirect("../shopRegister.jsp?headimgurl=" + headimgurl 
-					+ "&openId=" + openId + "&nickname=" + nickname + "&userNo=" + userNo);
+ 		
+		User user = this.userService.getUserByOpenId(openId);
+		String ip = null;
+		try {
+			ip = IpUtils.getIpAddress(this.request);
+		} catch (Exception e) {
+			ip = "0.0.0.0";
 		}
+		if (user != null) {// 1、如果会员已存在则调用登陆方法
+			HttpSession session = this.request.getSession();
+			User loginUser = this.userService.login(user.getName(), user.getPassword());
+			loginUser.setLoginCount(Integer.valueOf(loginUser.getLoginCount().intValue() + 1));
+			session.setAttribute("loginUser", loginUser);
+			loginUser.setLastLoginIp(ip);
+			loginUser.setLastLoginTime(new Date());
+			this.userService.saveOrUpdate(loginUser);
+		} else {// 2、如果会员不存在则调用注册方法
+			user = new User();
+			user.setOpenId(openId);
+			user.setName(nickname);
+			user.setPhone(nickname);
+//			user.setSuperior(tuijianren);
+			user.setPassword(Md5.getMD5Code("123456"));// TODO 所有密码都为123456
+			user.setLoginCount(Integer.valueOf(0));
+			user.setStatus(Integer.valueOf(0));
+			user.setBalance(Double.valueOf(0.0D));
+			user.setCommission(Double.valueOf(0.0D));
+			user.setHeadimgurl(headimgurl);
+			user.setDeleted(false);
+			user.setCreateDate(new Date());
+			User tjrUser = this.userService.getUserByNo(tuijianren);
+			if (tjrUser == null) {
+				user.setSuperior("");
+			} else {
+				if (StringUtils.isEmpty(tjrUser.getSuperior())) {
+					user.setSuperior(";" + tuijianren + ";");
+				} else if (tjrUser.getSuperior().split(";").length > 3)
+					user.setSuperior(";" + tjrUser.getSuperior().split(";", 3)[2] + tuijianren + ";");
+				else {
+					user.setSuperior(tjrUser.getSuperior() + tuijianren + ";");
+				}
+			}
+			
+			boolean res = this.userService.saveOrUpdate(user);
+			if (res) {// 注册成功后跳转“会员中心”页面
+				User loginUser = this.userService.getUserByName(user.getName());
+//				loginUser.setLoginCount(Integer.valueOf(loginUser.getLoginCount().intValue() + 1));
+				loginUser.setLastLoginIp(ip);
+				loginUser.setLastLoginTime(new Date());
+				loginUser.setNo(loginUser.getId().toString());
+				this.userService.saveOrUpdate(loginUser);
+				HttpSession session = this.request.getSession();
+				session.setAttribute("loginUser", loginUser);
+			}
+		}
+		this.response.sendRedirect("../index.jsp");
 	}
 	
 	/**
-	 * 订单同步：提供给对方调用来同步订单的数据
-	 * @throws Exception
+	 * 微信支付回调方法
 	 */
-	public void order() throws Exception {
-		PrintWriter out = null;
-		String code = "";
-		String message = "";
-		try {
-			out = this.response.getWriter();
-		} catch (IOException e) {
-			e.printStackTrace();
+	public void callback() throws Exception {
+		// 验证支付信息合法性
+		BufferedReader br = new BufferedReader(new InputStreamReader((ServletInputStream)request.getInputStream()));
+        String line = null;
+        StringBuilder sb = new StringBuilder();
+        while((line = br.readLine())!=null){
+            sb.append(line);
+        }
+        br.close();
+        request.getInputStream().close();
+		Map<String, String> map = (Map<String, String>)GetWxOrderno.doXMLParse(sb.toString());
+		// 过滤空 设置 TreeMap
+		SortedMap<Object, Object> newPackageParams = new TreeMap<Object, Object>();
+		Iterator it = map.keySet().iterator();
+		while (it.hasNext()) {
+			String parameter = (String) it.next();
+			String parameterValue = map.get(parameter);
+			String v = "";
+			if (null != parameterValue) {
+				v = parameterValue.trim();
+			}
+			newPackageParams.put(parameter, v);
 		}
-		try {
-			String ORDER_NO = request.getParameter("ORDER_NO");// 订单编号
-			String ORDER_PRICE = request.getParameter("ORDER_PRICE");// 订单金额
-			String ORDER_CONFIRMTIME = request.getParameter("ORDER_CONFIRMTIME");// 订单日期
-			String USER_ID = request.getParameter("USER_ID");// 会员编号
-			String ORDER_STATUS = request.getParameter("ORDER_STATUS");// 订单状态
-			String SHOP_ID = request.getParameter("SHOP_ID");// 商家编号
-			String TIMESTAMP = request.getParameter("TIMESTAMP");// 时间戳
-			String SIGN = request.getParameter("SIGN");// 签名
-			String key = "Xmwes2016";// 密钥
-			
-			System.out.println("ORDER_NO : " + ORDER_NO);
-			System.out.println("ORDER_PRICE : " + ORDER_PRICE);
-			System.out.println("ORDER_CONFIRMTIME : " + ORDER_CONFIRMTIME);
-			System.out.println("USER_ID : " + USER_ID);
-			System.out.println("ORDER_STATUS : " + ORDER_STATUS);
-			System.out.println("SHOP_ID : " + SHOP_ID);
-			System.out.println("TIMESTAMP : " + TIMESTAMP);
-			System.out.println("SIGN : " + SIGN);
-			System.out.println("key : " + key);
-			
-			if (ORDER_NO == null || "".equals(ORDER_NO.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (ORDER_PRICE == null || "".equals(ORDER_PRICE.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (ORDER_CONFIRMTIME == null || "".equals(ORDER_CONFIRMTIME.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (USER_ID == null || "".equals(USER_ID.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (ORDER_STATUS == null || "".equals(ORDER_STATUS.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (SHOP_ID == null || "".equals(SHOP_ID.trim())) {
-				throw new Exception("参数有误");
-			}
-			if (TIMESTAMP == null || "".equals(TIMESTAMP.trim())) {
-				throw new Exception("参数有误");
-			}
-			ORDER_NO = Base64.getFromBase64(ORDER_NO);
-			ORDER_PRICE = Base64.getFromBase64(ORDER_PRICE);
-			ORDER_CONFIRMTIME = Base64.getFromBase64(ORDER_CONFIRMTIME);
-			USER_ID = Base64.getFromBase64(USER_ID);
-			ORDER_STATUS = Base64.getFromBase64(ORDER_STATUS);
-			SHOP_ID = Base64.getFromBase64(SHOP_ID);
-			TIMESTAMP = Base64.getFromBase64(TIMESTAMP);
-			
-			if (ORDER_STATUS == null || !"B".equals(ORDER_STATUS)) {
-				throw new Exception("订单状态不对");
-			}
-			
-			System.out.println("ORDER_NO : " + ORDER_NO);
-			System.out.println("ORDER_PRICE : " + ORDER_PRICE);
-			System.out.println("ORDER_CONFIRMTIME : " + ORDER_CONFIRMTIME);
-			System.out.println("USER_ID : " + USER_ID);
-			System.out.println("ORDER_STATUS : " + ORDER_STATUS);
-			System.out.println("SHOP_ID : " + SHOP_ID);
-			System.out.println("TIMESTAMP : " + TIMESTAMP);
-			System.out.println("SIGN : " + SIGN);
-			System.out.println("key : " + key);
-			
-			// 进行签名验证
-			String strObj = ORDER_NO + USER_ID + ORDER_PRICE + ORDER_CONFIRMTIME + ORDER_STATUS + SHOP_ID + TIMESTAMP + key;
-			String newSign = Md5.getMD5Code(strObj);
-			
-			System.out.println("newSign >>>>>>>>>> " + newSign);
-			if (SIGN == null || "".equals(SIGN) || !newSign.equals(SIGN)) {
-				throw new Exception("签名错误");
-			}
-			
-			// 通过会员编号、订单金额进行分销佣金计算
-			User user = this.userService.getUserByPhone(USER_ID);// 订单所属会员
-			User shop = this.userService.getUserByPhone(SHOP_ID);// 订单所属商家
-			if (user == null && shop == null) {
-				try {
-					OrderOther orderOther = new OrderOther();
-					orderOther.setCreateDate(new Date());
-					orderOther.setDeleted(false);
-					orderOther.setMoney(new Double(ORDER_PRICE));
-					orderOther.setNo(ORDER_NO);
-					orderOther.setPayDate(stampToDate(ORDER_CONFIRMTIME));// 戳转日期
-					orderOther.setProductId(null);
-					orderOther.setProductMoney(new Double(ORDER_PRICE));
-					orderOther.setProductName("");
-					orderOther.setProductNum(1);
-					orderOther.setShop(shop);
-					orderOther.setStatus(2);
-					orderOther.setSummary("西安同步的订单");
-					orderOther.setUser(user);
-					OrderOther OrderOtherTemp = this.orderOtherService.findByNo(ORDER_NO);
-					if (OrderOtherTemp != null) {
-						throw new Exception("订单已经存在，请勿重新同步！");
+		if (PayCommonUtil.isTenpaySign("UTF-8", newPackageParams, partnerkey)) {
+			String return_code  = (String) map.get("return_code");// 返回结果
+			String resXml = "";
+			// 重新签名并核对信息确认是真实交易
+			if ("SUCCESS".equals(return_code)) {
+				String out_trade_no = (String) map.get("out_trade_no");// 订单编号
+				String openid = (String) map.get("openid");// 微信用户openId
+				String total_fee = (String) map.get("total_fee");// 交易金额
+				// 查询红包订单是否已经存在
+				Orders findOrders = this.ordersService.findByNo(out_trade_no);
+				if (findOrders != null) {// 订单存在
+					if ("1".equals(findOrders.getStatus())) {
+						return;
 					}
-					this.orderOtherService.saveOrUpdate(orderOther);
-				} catch (Exception e) {
-					e.printStackTrace();
+					// 更新订单信息
+					findOrders.setStatus(1);
+					this.ordersService.saveOrUpdate(findOrders);
+					// 保存财务信息
+					Financial financial = new Financial();
+					financial.setType(Integer.valueOf(0));
+					financial.setMoney(Double.valueOf(-findOrders.getMoney().doubleValue()));
+					financial.setNo("" + System.currentTimeMillis());
+					financial.setOperator(findOrders.getUser().getName());
+					financial.setUser(findOrders.getUser());
+					financial.setCreateDate(new Date());
+					financial.setDeleted(false);
+					financial.setBalance(findOrders.getUser().getBalance());
+					financial.setPayment("微信支付");
+					financial.setRemark("购买" + findOrders.getProductName());
+					this.financialService.saveOrUpdate(financial);
+					Config findConfig = (Config) this.configService.findById(Config.class, 1);
+					String levelNos = findOrders.getUser().getSuperior();
+					if (!StringUtils.isEmpty(levelNos)) {
+						String[] leverNoArr = levelNos.split(";");
+						int i = leverNoArr.length - 1;
+						for (int j = 1; i > 0; j++) {
+							if (!StringUtils.isEmpty(leverNoArr[i])) {
+								User levelUser = this.userService.getUserByNo(leverNoArr[i]);
+								if (levelUser != null) {
+									double commissionRate = 0.0D;
+									if (j == 1)
+										commissionRate = findConfig.getFirstLevel().doubleValue();
+									else if (j == 2)
+										commissionRate = findConfig.getSecondLevel().doubleValue();
+									else if (j == 3) {
+										commissionRate = findConfig.getThirdLevel().doubleValue();
+									}
+									double commissionNum = findOrders.getMoney().doubleValue() * commissionRate;
+									levelUser.setCommission(
+											Double.valueOf(levelUser.getCommission().doubleValue() + commissionNum));
+									this.userService.saveOrUpdate(levelUser);
+									Commission commission = new Commission();
+									commission.setType(Integer.valueOf(1));
+									commission.setMoney(Double.valueOf(commissionNum));
+									commission.setNo("" + System.currentTimeMillis());
+									commission.setOperator(findOrders.getUser().getName());
+									commission.setUser(levelUser);
+									commission.setCreateDate(new Date());
+									commission.setDeleted(false);
+									commission.setLevel(Integer.valueOf(j));
+									commission.setRemark("第" + j + "级用户:编号【" + findOrders.getUser().getNo() + "】购买商品奖励");
+									this.commissionService.saveOrUpdate(commission);
+								}
+							}
+							i--;
+						}
+					}
 				}
+				resXml = "<xml>"
+						+ "<return_code><![CDATA[SUCCESS]]></return_code>"
+						+ "<return_msg><![CDATA[OK]]></return_msg>" + "</xml> ";
 			} else {
-				Orders orders = new Orders();
-				orders.setCreateDate(new Date());
-				orders.setDeleted(false);
-				orders.setMoney(new Double(ORDER_PRICE));
-				orders.setNo(ORDER_NO);
-				orders.setPayDate(stampToDate(ORDER_CONFIRMTIME));// 戳转日期
-				orders.setProductId(null);
-				orders.setProductMoney(new Double(ORDER_PRICE));
-				orders.setProductName("");
-				orders.setProductNum(1);
-				orders.setShop(shop);
-				orders.setStatus(2);
-				orders.setSummary("西安同步的订单");
-				orders.setUser(user);
-				
-				Orders orderTemp = this.ordersService.findByNo(ORDER_NO);
-				if (orderTemp != null) {
-					throw new Exception("订单已经存在，请勿重新同步！");
-				}
-				this.ordersService.saveSynchroOrder(orders);// 还需要进行分润处理
+				resXml = "<xml>"
+						+ "<return_code><![CDATA[FAIL]]></return_code>"
+						+ "<return_msg><![CDATA[报文为空]]></return_msg>" + "</xml> ";
 			}
-			code = "0000";
-			message = "";
-		} catch (Exception e) {
-			e.printStackTrace();
-			code = "0001";
-			message = e.getMessage();
-		} finally {
-			JSONObject json = new JSONObject();
-			json.put("code",code);
-			json.put("message",message);
-			
-			out.print(json.toString());
+			BufferedOutputStream out = new BufferedOutputStream(response.getOutputStream());
+			out.write(resXml.getBytes());
 			out.flush();
 			out.close();
+			System.out.println("微信支付回调结束");
 		}
 	}
-	
-	/* 
-     * 将时间戳转换为时间
-     */
-    private Date stampToDate(String s){
-        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
-        Date date = null;
-		try {
-			date = simpleDateFormat.parse(s);
-		} catch (ParseException e) {
-			e.printStackTrace();
-		}
-        return date;
-    }
 	
 }

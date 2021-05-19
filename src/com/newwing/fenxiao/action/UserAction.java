@@ -19,16 +19,11 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSONObject;
-import com.newwing.fenxiao.entities.Admin;
 import com.newwing.fenxiao.entities.Config;
 import com.newwing.fenxiao.entities.Financial;
-import com.newwing.fenxiao.entities.PhoneValidateCode;
 import com.newwing.fenxiao.entities.User;
-import com.newwing.fenxiao.service.IAdminService;
-import com.newwing.fenxiao.service.IApiService;
 import com.newwing.fenxiao.service.IConfigService;
 import com.newwing.fenxiao.service.IFinancialService;
-import com.newwing.fenxiao.service.IPhoneValidateCodeService;
 import com.newwing.fenxiao.service.IUserService;
 import com.newwing.fenxiao.utils.BjuiJson;
 import com.newwing.fenxiao.utils.BjuiPage;
@@ -45,29 +40,19 @@ public class UserAction extends BaseAction {
 
 	@Resource(name = "userService")
 	private IUserService<User> userService;
-	
-	@Resource(name = "adminService")
-	private IAdminService<Admin> adminService;
-	
-	@Resource(name = "apiService")
-	private IApiService apiService;
 
 	@Resource(name = "configService")
 	private IConfigService<Config> configService;
 
 	@Resource(name = "financialService")
 	private IFinancialService<Financial> financialService;
-	
-	@Resource(name = "phoneValidateCodeService")
-	private IPhoneValidateCodeService<PhoneValidateCode> phoneValidateCodeService;
-	
 	private User user;
 	private String ftlFileName;
 
 	public void list() {
 		String key = this.request.getParameter("key");
-		String countHql = "select count(*) from User where deleted=0 and type='0' ";
-		String hql = "from User where deleted=0 and type='0' ";
+		String countHql = "select count(*) from User where deleted=0";
+		String hql = "from User where deleted=0";
 		if (StringUtils.isNotEmpty(key)) {
 			countHql = countHql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
 			hql = hql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
@@ -99,112 +84,108 @@ public class UserAction extends BaseAction {
 
 	public void register() {
 		PrintWriter out = null;
-		JSONObject json = new JSONObject();
 		try {
 			out = this.response.getWriter();
-			String code = this.request.getParameter("code");// 短信验证码
-//			if(!this.validationCode(code, user.getPhone())) {// 校验短信验证码
-//				throw new Exception("验证码错误或者已失效");
-//			} 
-			String phone = user.getPhone();
-			String password = user.getPassword();
-			String password2 = user.getPassword2();
-			String source = "XM";
-			if ("1".equals(user.getType())) {// 商家用户
-				String tuijianren = this.request.getParameter("tuijianren");// 推荐人
-				User tjrUser = this.userService.getUserByNo(tuijianren);
-				if (tjrUser == null) {
-					throw new Exception("推荐人不存在");
-				}
-//				if (tjrUser.getStatus().intValue() == 0) {
-//					throw new Exception("推荐人未激活");
-//				}
-//				User userTemp = this.userService.getUserByNoAndType(user.getPhone(), "0");
-//				if (userTemp != null) {
-//					throw new Exception("该手机已注册会员，无法注册");
-//				}
-				if (StringUtils.isEmpty(tjrUser.getSuperior())) {
-					this.user.setSuperior(";" + tuijianren + ";");
-				} else if (tjrUser.getSuperior().split(";").length > 3) {
-					this.user.setSuperior(";" + tjrUser.getSuperior().split(";", 3)[2] + tuijianren + ";");
-				} else {
-					this.user.setSuperior(tjrUser.getSuperior() + tuijianren + ";");
-				}
-				user.setSuperNo(tuijianren);
-			} else {// 个人用户
-				user.setType("0");
-				// 判断是否已经被注册成了商家
-//				User userTemp = this.userService.getUserByNoAndType(user.getPhone(), "1");
-//				if (userTemp != null) {
-//					throw new Exception("该手机已注册商家，无法注册");
-//				}
-			}
-			
-			if (this.user == null) {
-				throw new Exception("参数错误");
-			}
-			if (this.userService.getUserByName(this.user.getPhone()) != null) {
-				throw new Exception("手机号已存在");
-			}
-			if (this.userService.getUserByOpenId(this.user.getOpenId()) != null) {
-				throw new Exception("该微信号已经是会员");
-			}
-			String ip = null;
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String tuijianren = this.request.getParameter("tuijianren");// 推荐人
+		String openid = this.request.getParameter("openid");// 微信openid
+		String phone = this.request.getParameter("phone");// 会员编号(用手机号)
+		String name = this.request.getParameter("name");// 姓名
+		
+		// 先通过手机号码和openid判断用户是否存在，如果不存在执行注册逻辑，如果存在执行登陆逻辑 TODO 
+		// 头像
+		// 会员手机号
+		// 用户名(用手机号)
+		// 密码(不需要)
+		// 确认密码(不需要)
+		// 编号(用手机号)
+//		user.setBalance(balance);
+//		user.setCommission(commission);
+//		user.setCreateDate(createDate);
+//		user.setDeleted(deleted);
+//		user.setId(id);
+//		user.setLastLoginIp(lastLoginIp);
+//		user.setLastLoginTime(lastLoginTime);
+//		user.setLoginCount(loginCount);
+		user.setName(name);
+		user.setNo(phone);
+		user.setPassword(phone);
+		user.setPhone(phone);
+//		user.setRegisterIp(registerIp);
+//		user.setStatus(status);
+//		user.setStatusDate(statusDate);
+//		user.setSuperior(superior);
+//		user.setVersion(version);
+
+		User tjrUser = this.userService.getUserByNo(tuijianren);
+		JSONObject json = new JSONObject();
+		if (this.user == null) {
+			json.put("status", "0");
+			json.put("message", "参数错误");
+		} else if (this.userService.getUserByName(this.user.getName()) != null) {
+			json.put("status", "0");
+			json.put("message", "账号已存在");
+		} else if (this.userService.getUserByName(this.user.getPhone()) != null) {
+			json.put("status", "0");
+			json.put("message", "手机号已存在");
+		} else if (tjrUser == null) {
+			json.put("status", "0");
+			json.put("message", "推荐人不存在");
+		} else if (tjrUser.getStatus().intValue() == 0) {
+			json.put("status", "0");
+			json.put("message", "推荐人未激活");
+		} else {
 			try {
-				ip = IpUtils.getIpAddress(this.request);
+				String ip = IpUtils.getIpAddress(this.request);
+				this.user.setRegisterIp(ip);
 			} catch (Exception e) {
 				this.user.setRegisterIp("0.0.0.0");
 			}
-			this.user.setNo(user.getPhone());
-			this.user.setName(user.getPhone());
-			this.user.setRegisterIp(ip);
+			if (StringUtils.isEmpty(tjrUser.getSuperior())) {
+				this.user.setSuperior(";" + tuijianren + ";");
+			} else if (tjrUser.getSuperior().split(";").length > 3)
+				this.user.setSuperior(";" + tjrUser.getSuperior().split(";", 3)[2] + tuijianren + ";");
+			else {
+				this.user.setSuperior(tjrUser.getSuperior() + tuijianren + ";");
+			}
+
 			this.user.setPassword(Md5.getMD5Code(this.user.getPassword()));
 			this.user.setLoginCount(Integer.valueOf(0));
 			this.user.setStatus(Integer.valueOf(0));
 			this.user.setBalance(Double.valueOf(0.0D));
 			this.user.setCommission(Double.valueOf(0.0D));
 			this.user.setDeleted(false);
+
 			this.user.setCreateDate(new Date());
 			boolean res = this.userService.saveOrUpdate(this.user);
 			if (res) {
 				User loginUser = this.userService.getUserByName(this.user.getName());
+
 				loginUser.setLoginCount(Integer.valueOf(loginUser.getLoginCount().intValue() + 1));
+				try {
+					String ip = IpUtils.getIpAddress(this.request);
+					loginUser.setLastLoginIp(ip);
+				} catch (Exception e) {
+					loginUser.setLastLoginIp("0.0.0.0");
+				}
 				loginUser.setLastLoginTime(new Date());
-				this.userService.register(loginUser, user.getType(), phone, password, password2, source, request);
+				this.userService.saveOrUpdate(loginUser);
 				HttpSession session = this.request.getSession();
 				session.setAttribute("loginUser", loginUser);
+				json.put("status", "1");
+				json.put("message", "注册成功");
 			} else {
-				throw new Exception("注册失败，请重试");
+				json.put("status", "0");
+				json.put("message", "注册失败，请重试");
 			}
-			json.put("status", "1");
-			json.put("message", "注册成功");
-		} catch (Exception e) {
-			json.put("status", "0");
-			json.put("message", e.getMessage());
-		} finally {
-			out.print(json.toString());
-			out.flush();
-			out.close();
 		}
-		
+		out.print(json.toString());
+		out.flush();
+		out.close();
 	}
-	
-	// 验证短信有效性
-	private boolean validationCode(String code, String phone) {
-		PhoneValidateCode findPhoneValidateCode = this.phoneValidateCodeService.getPhoneValidateCode(phone, code);
-		if (findPhoneValidateCode == null) {// 验证码错误或者失效
-			return false;
-		}  else {
-			long nowTime = System.currentTimeMillis();
-			Date codeDateTime = findPhoneValidateCode.getCreateDate();
-			long codeTime = codeDateTime.getTime();
-			if (nowTime > codeTime + 600000L) {
-				return false;
-			} 
-		}
-		return true;
-	}
-	
+
 	public void info() throws JSONException {
 		String idStr = this.request.getParameter("id");
 		String callbackData = "";
@@ -346,7 +327,6 @@ public class UserAction extends BaseAction {
 				this.userService.saveOrUpdate(loginUser);
 				json.put("status", "1");
 				json.put("message", "登录成功");
-				json.put("type", loginUser.getType());// 用户类别： 0-个人会员； 1-商家会员
 			}
 		}
 		out.print(json.toString());
@@ -415,18 +395,19 @@ public class UserAction extends BaseAction {
 
 	public void resetPassword() {
 		PrintWriter out = null;
-		JSONObject json = new JSONObject();
 		try {
 			out = this.response.getWriter();
-			String password = this.request.getParameter("password");
-			String phone = this.request.getParameter("phone");
-			String code = this.request.getParameter("code");
-			if(!this.validationCode(code, user.getPhone())) {// 校验短信验证码
-				throw new Exception("验证码错误或者已失效");
-			} 
-			User findUser = this.userService.getUserByPhone(phone);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		String password = this.request.getParameter("password");
+		String phone = this.request.getParameter("phone");
+		User findUser = this.userService.getUserByPhone(phone);
+		JSONObject json = new JSONObject();
+		try {
 			if (findUser == null) {
-				throw new Exception("用户不存在");
+				json.put("status", "0");
+				json.put("message", "用户不存在");
 			} else {
 				findUser.setPassword(Md5.getMD5Code(password));
 				this.userService.saveOrUpdate(findUser);
@@ -434,13 +415,11 @@ public class UserAction extends BaseAction {
 				json.put("message", "密码重置成功");
 			}
 		} catch (Exception e) {
-			json.put("status", "0");
-			json.put("message", e.getMessage());
-		} finally {
-			out.print(json);
-			out.flush();
-			out.close();
+			e.printStackTrace();
 		}
+		out.print(json);
+		out.flush();
+		out.close();
 	}
 
 	public void createUserNo() {
@@ -721,152 +700,18 @@ public class UserAction extends BaseAction {
 	public void setFtlFileName(String ftlFileName) {
 		this.ftlFileName = ftlFileName;
 	}
-	
-	public void subShopList() {
-		String key = this.request.getParameter("key");
-		String flag = (String)this.request.getSession().getAttribute("flag");
-		Admin loginAdmin = (Admin)this.request.getSession().getAttribute("loginAdmin");
-		String countHql = "select count(*) from User where deleted=0 and type != '0' ";
-		String hql = "from User where deleted=0 and type != '0' and superNo = '" + loginAdmin.getName() + "'";
-		if (StringUtils.isNotEmpty(key)) {
-			countHql = countHql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
-			hql = hql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
-		}
-		hql = hql + " order by id desc";
 
-		int count = 0;
-		count = this.userService.getTotalCount(countHql, new Object[0]);
-		this.page = new BjuiPage(this.pageCurrent, this.pageSize);
-		this.page.setTotalCount(count);
-		this.cfg = new Configuration();
-
-		this.cfg.setServletContextForTemplateLoading(this.request.getServletContext(), "WEB-INF/templates/admin");
-		List userList = this.userService.list(hql, this.page.getStart(), this.page.getPageSize(), new Object[0]);
-		Map root = new HashMap();
-		root.put("userList", userList);
-		root.put("page", this.page);
-		root.put("key", key);
-		root.put("flag", flag);
-		
-		FreemarkerUtils.freemarker(this.request, this.response, this.ftlFileName, this.cfg, root);
-	}
-	
-	// 再下级
-	public void subSubShopList() {
-		String key = this.request.getParameter("key");
-		String id = this.request.getParameter("id");
-		
-		User userTemp = this.userService.findById(User.class, new Integer(id));
-		
-		String flag = (String)this.request.getSession().getAttribute("flag");
-		String countHql = "select count(*) from User where deleted=0 and type != '0' ";
-		String hql = "from User where deleted=0 and type != '0' and superNo = '" + userTemp.getNo() + "'";
-		if (StringUtils.isNotEmpty(key)) {
-			countHql = countHql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
-			hql = hql + " and (name='" + key + "' or no='" + key + "' or phone='" + key + "')";
-		}
-		hql = hql + " order by id desc";
-
-		int count = 0;
-		count = this.userService.getTotalCount(countHql, new Object[0]);
-		this.page = new BjuiPage(this.pageCurrent, this.pageSize);
-		this.page.setTotalCount(count);
-		this.cfg = new Configuration();
-
-		this.cfg.setServletContextForTemplateLoading(this.request.getServletContext(), "WEB-INF/templates/admin");
-		List userList = this.userService.list(hql, this.page.getStart(), this.page.getPageSize(), new Object[0]);
-		Map root = new HashMap();
-		root.put("userList", userList);
-		root.put("page", this.page);
-		root.put("key", key);
-		root.put("flag", flag);
-		
-		FreemarkerUtils.freemarker(this.request, this.response, this.ftlFileName, this.cfg, root);
-	}
-	
-	public void toUpgrade() throws JSONException {
-		String idStr = this.request.getParameter("id");
-		String callbackData = "";
-		PrintWriter out = null;
-		try {
-			out = this.response.getWriter();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-
-		if ((idStr == null) || ("".equals(idStr))) {
-			callbackData = BjuiJson.json("300", "参数不能为空", "", "", "", "", "", "");
-		} else {
-			int id = 0;
-			try {
-				id = Integer.parseInt(idStr);
-			} catch (Exception e) {
-				callbackData = BjuiJson.json("300", "参数错误", "", "", "", "", "", "");
-			}
-			User findUser = (User) this.userService.findById(User.class, id);
-			if (findUser == null) {
-				callbackData = BjuiJson.json("300", "用户不存在", "", "", "", "", "", "");
-			} else {
-				this.cfg = new Configuration();
-
-				this.cfg.setServletContextForTemplateLoading(this.request.getServletContext(),
-						"WEB-INF/templates/admin");
-				Map root = new HashMap();
-				root.put("user", findUser);
-				FreemarkerUtils.freemarker(this.request, this.response, this.ftlFileName, this.cfg, root);
-			}
-		}
-		out.print(callbackData);
-		out.flush();
-		out.close();
-	}
-	
-	public void upgrade() {
-		PrintWriter out = null;
-		try {
-			out = this.response.getWriter();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-		String callbackData = "";
-		try {
-			if (this.user == null) {
-				callbackData = BjuiJson.json("300", "参数错误", "", "", "", "", "", "");
-			} else {
-				User findUser = (User) this.userService.findById(User.class, this.user.getId().intValue());
-				if (StringUtils.isNotEmpty(this.user.getPassword())) {
-					findUser.setPassword(Md5.getMD5Code(this.user.getPassword()));
-				}
-				findUser.setType(this.user.getType());
-				boolean result = this.userService.saveOrUpdate(findUser);
-				Admin admin = this.adminService.getAdminName(user.getName());
-				if (admin == null) {
-					admin = new Admin();
-					admin.setCreateDate(new Date());
-					admin.setDeleted(false);
-//					admin.setId(id);
-//					admin.setJuri(juri);
-//					admin.setLastLoginIp(lastLoginIp);
-//					admin.setLastLoginTime(lastLoginTime);
-					admin.setLoginCount(0);
-					admin.setName(findUser.getName());
-					admin.setPassword(findUser.getPassword());
-					admin.setStatus(1);
-//					admin.setVersion(version);
-					this.adminService.saveOrUpdate(admin);
-				}
-				
-				if (result) {
-					callbackData = BjuiJson.json("200", "修改成功", "", "", "", "true", "", "");
-				} else
-					callbackData = BjuiJson.json("300", "修改失败", "", "", "", "", "", "");
-			}
-		} catch (JSONException e) {
-			e.printStackTrace();
-		}
-		out.print(callbackData);
-		out.flush();
-		out.close();
+	public static void main(String[] args) {
+		// String a = ";1;2;3;";
+		// System.out.println(a.split(";").length);
+		//
+		// if (a.split(";").length > 3) {
+		// String[] b = a.split(";", 3);
+		// System.out.println(b[2]);
+		// }
+		String b = "";
+		String c = null;
+		System.out.println(StringUtils.isEmpty(b));
 	}
 	
 }

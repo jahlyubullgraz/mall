@@ -16,8 +16,6 @@ public abstract interface IUserDao extends IBaseDao<User> {
 
 	public abstract User getUserByNo(String paramString);
 	
-	public abstract User getUserByNoAndType(String paramString1, String paramString2);
-	
 	public abstract User getUserByOpenId(String openId);
 
 	public abstract List<User> levelUserList(String paramString);
@@ -26,6 +24,6 @@ public abstract interface IUserDao extends IBaseDao<User> {
 
 	public abstract List<User> levelUserTodayStatusList(String paramString);
 	
-	public abstract List<User> findProfitUserList();
+	
 	
 }

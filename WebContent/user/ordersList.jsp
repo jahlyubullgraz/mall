@@ -16,17 +16,10 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
   <meta content="telephone=no" name="format-detection" />
   <meta name="wap-font-scale" content="no" />
   <title>订单列表</title>
+  <!--  ico  -->
   <link href="../res/images/jylogo.ico " rel="shortcut icon"type="image/x-icon" />
   <link rel="stylesheet" href="../css/base.css" />
   <link rel="stylesheet" type="text/css" href="../css/cart3.css" />
-  	<style type="text/css">
-		.mainBgColor{
-			background:#c72525!important;
-		}
-		.white{
-			color:#FFF!important;
-		}
-	</style>
   <script type="text/javascript" src="../js/jquery.min.js"></script>
 	<script type="text/javascript" src="../js/zepto.min.js"></script>
 	<script>
@@ -36,19 +29,20 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
  </head>
  <body>
   <section class="ww order-wrap">
-   <div class="sn-nav mainBgColor">
+   <div class="sn-nav sn-block">
     <div class="sn-nav-back">
-     <a class="sn-iconbtn white" href="index.jsp">返回</a>
+     <a class="sn-iconbtn" href="index.jsp">返回</a>
     </div>
-    <div class="sn-nav-title of white">订单</div>
-<!--     <div class="sn-nav-right tr pr"><a href="index.jsp">首页</a></div> -->
+    <div class="sn-nav-title of">
+   	  订单列表
+    </div>
+    <div class="sn-nav-right tr pr"><a href="index.jsp">首页</a></div>
    </div>
-   <a href="createOrder.jsp" class="first-step sn-btn sn-btn-big sn-btn-block m30 sn-btn-positive mainBgColor">+新建订单</a>
    <div class="order-tab" id="b2cOrder" style="-webkit-transform-origin: 0px 0px 0px; opacity: 1; -webkit-transform: scale(1, 1);">
     <ul class="order-nav wwbox" id="orderTab">
-<!--      <li class="cur" id="orderTab1"><a href="javascript:void(0);" onclick="javascript:change(2);">全部订单</a></li> -->
-     <li class="cur" id="orderTab2"><a href="javascript:void(0);" onclick="javascript:change(0);">未确认</a></li>
-     <li class="" id="orderTab3"><a href="javascript:void(0);" onclick="javascript:change(1);">已确认</a></li>
+     <li class="cur" id="orderTab1"><a href="javascript:void(0);" onclick="javascript:change(2);">全部订单</a></li>
+     <li class="" id="orderTab2"><a href="javascript:void(0);" onclick="javascript:change(0);">待支付</a></li>
+     <li class="" id="orderTab3"><a href="javascript:void(0);" onclick="javascript:change(1);">待收货</a></li>
     </ul>
     <div class="order-tab-count" id="orderList">
 
@@ -120,11 +114,11 @@ String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.
    </div>
    </div>
    <div class="mb30 sn-txt-muted tc" id="noLoadNextPage" style="display:none">
-    <span>已全部加载</span>
+    <span>Duang~到底了</span>
    </div>
    <div id="loadNextPage">
     <div class="mb30 tc">
-     <a href="javascript:void(0)" id="nextPage" name="Wap_reg_person_005" onclick="list();return false;" class="sn-txt-muted">加载更多</a>
+     <a href="javascript:void(0)" id="nextPage" name="Wap_reg_person_005" onclick="list();return false;" class="sn-txt-muted">点击加载更多</a>
     </div>
    </div>
   </section>

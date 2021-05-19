@@ -21,7 +21,6 @@ import org.springframework.stereotype.Controller;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
-import com.newwing.fenxiao.entities.Admin;
 import com.newwing.fenxiao.entities.Commission;
 import com.newwing.fenxiao.entities.Config;
 import com.newwing.fenxiao.entities.Financial;
@@ -56,8 +55,9 @@ public class OrdersAction extends BaseAction {
 	private String appid = "wx80c6f861374d68fc";
 	private String appsecret = "0d75a21684944d43120ce82102046244";
 	private String partner = "1401404002";
+//	private String partnerkey = "hsbd74mfimjeFKr74dd8Nhd83bsmdi7e";
 	private String partnerkey = "QHTqht201688HYDTxrxy1688NJZYCHIZ";
-	private String notify_url ="http://www.genobien.com/api/callback";// 回调地址
+	private String notify_url ="http://www.genobien.com/fx/api/callback";// 回调地址
 	private String createOrderURL = "https://api.mch.weixin.qq.com/pay/unifiedorder";// 统一支付接口url
 	
 	@Resource(name = "ordersService")
@@ -85,9 +85,8 @@ public class OrdersAction extends BaseAction {
 
 	public void list() {
 		String key = this.request.getParameter("key");
-		Admin loginAdmin = (Admin)this.request.getSession().getAttribute("loginAdmin");
-		String countHql = "select count(*) from Orders where deleted=0 and shop.name = '" + loginAdmin.getName() + "'";
-		String hql = "from Orders where deleted=0 and shop.name = '" + loginAdmin.getName() + "'";
+		String countHql = "select count(*) from Orders where deleted=0";
+		String hql = "from Orders where deleted=0";
 		if (StringUtils.isNotEmpty(key)) {
 			countHql = countHql + " and (user.name='" + key + "' or no='" + key + "' or productName='" + key + "')";
 			hql = hql + " and (user.name='" + key + "' or no='" + key + "' or productName='" + key + "')";
@@ -144,15 +143,29 @@ public class OrdersAction extends BaseAction {
 	}
 
 	public void save() {
-		String shopNo = this.request.getParameter("shopNo");// 商家编号
-		String money = this.request.getParameter("money");// 消费金额
-		// 上传凭证
-		String summary = this.request.getParameter("summary");// 消费项目
-		// 成功后跳转到订单列表页面
-		User shop = this.userService.getUserByNoAndType(shopNo, "1");
-		if (shop == null) {
+		String pidStr = this.request.getParameter("pid");
+		String numStr = this.request.getParameter("num");
+		int pid = 0;
+		int num = 1;
+		try {
+			pid = Integer.parseInt(pidStr);
+			num = Integer.parseInt(numStr);
+		} catch (Exception e) {
 			this.request.setAttribute("status", "0");
-			this.request.setAttribute("message", "商家编号不存在");
+			this.request.setAttribute("message", "参数错误");
+			try {
+				this.request.getRequestDispatcher("orderAdd.jsp").forward(this.request, this.response);
+			} catch (ServletException e1) {
+				e1.printStackTrace();
+			} catch (IOException e1) {
+				e1.printStackTrace();
+			}
+			return;
+		}
+		Product findProduct = (Product) this.productService.findById(Product.class, pid);
+		if (findProduct == null) {
+			this.request.setAttribute("status", "0");
+			this.request.setAttribute("message", "商品不存在");
 		} else {
 			HttpSession session = this.request.getSession();
 			User loginUser = (User) session.getAttribute("loginUser");
@@ -161,14 +174,13 @@ public class OrdersAction extends BaseAction {
 				this.request.setAttribute("message", "您未登陆或者登陆失效，请重新登陆");
 			} else {
 				Orders newOrders = new Orders();
-//				newOrders.setProductId("" + findProduct.getId());
-//				newOrders.setProductName(findProduct.getTitle());
-				newOrders.setProductNum(1);
-				newOrders.setProductMoney(Double.valueOf(money));
+				newOrders.setProductId("" + findProduct.getId());
+				newOrders.setProductName(findProduct.getTitle());
+				newOrders.setProductNum(Integer.valueOf(num));
+				newOrders.setProductMoney(findProduct.getMoney());
 				newOrders.setUser(loginUser);
 				newOrders.setStatus(Integer.valueOf(0));
-				newOrders.setMoney(Double.valueOf(money));
-				newOrders.setSummary(summary);
+				newOrders.setMoney(Double.valueOf(num * findProduct.getMoney().doubleValue()));
 
 				Random random = new Random();
 				int n = random.nextInt(9999);
@@ -181,15 +193,10 @@ public class OrdersAction extends BaseAction {
 				newOrders.setDeleted(false);
 				this.ordersService.saveOrUpdate(newOrders);
 				try {
-					this.request.setAttribute("status", "1");
-					this.request.setAttribute("message", "订单创建成功");
-					this.request.getRequestDispatcher("ordersList.jsp").forward(this.request, this.response);
-				} catch (ServletException e1) {
-					e1.printStackTrace();
+					this.response.sendRedirect("settle?no=" + no);
 				} catch (IOException e) {
 					e.printStackTrace();
 				}
-				
 			}
 		}
 	}

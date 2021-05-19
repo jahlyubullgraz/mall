@@ -1,5 +1,4 @@
 <%@ page language="java" import="java.util.*,java.net.InetAddress" pageEncoding="utf-8"%>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <%
 String path = request.getContextPath();
 String basePath = request.getScheme()+"://"+request.getServerName()+":"+request.getServerPort()+path+"/";
@@ -15,9 +14,9 @@ String ip = addr.getHostAddress();
 <link href="../res/images/jylogo.ico " rel="shortcut icon"type="image/x-icon" />
 <meta http-equiv="content-type" content="text/html;charset=utf-8">
 <meta http-equiv="X-UA-Compatible" content="IE=edge">
-<title>9号购物商城</title>
-<meta name="Keywords" content="9号购物商城"/>
-<meta name="Description" content="9号购物商城后台管理系统"/> 
+<title>GENOBIEN健诺嘉-三级分销</title>
+<meta name="Keywords" content="GENOBIEN健诺嘉-三级分销"/>
+<meta name="Description" content="GENOBIEN健诺嘉-三级分销后台管理系统"/> 
 <!-- bootstrap - css -->
 <link href="../res/bjui/themes/css/bootstrap.min.css" rel="stylesheet">
 <!-- core - css -->
@@ -152,6 +151,7 @@ $(function(){
             <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bjui-navbar-collapse">
                 <span class="sr-only">Toggle navigation</span> <span class="icon-bar"></span> <span class="icon-bar"></span> <span class="icon-bar"></span>
             </button>
+            <a class="navbar-brand" href="http://www.genobien.com" target="_blank"><img src="../res/images/logo.png" width="260"></a>
         </div>
         <nav class="collapse navbar-collapse" id="bjui-navbar-collapse">
             <ul class="nav navbar-nav navbar-right">
@@ -159,9 +159,7 @@ $(function(){
                 <li><a href="javascript:void(0)">
 					    ${loginAdmin.name}
 					</a></li>
-				<li><a href="withdrawAdd" data-toggle="dialog" data-id=withdrawAdd_page" data-mask="true" data-width="400" data-height="260">余额 ：${loginUser.balance} 元【<font color="red;">提现</font>】</a></li>
-                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">
-                	我的账户 <span class="caret"></span></a>
+                <li class="dropdown"><a href="#" class="dropdown-toggle" data-toggle="dropdown">我的账户 <span class="caret"></span></a>
                     <ul class="dropdown-menu" role="menu">
                         <li><a href="changePwd" data-toggle="dialog" data-id="changepwd_page" data-mask="true" data-width="400" data-height="260">&nbsp;
                         <span class="glyphicon glyphicon-lock"></span>修改密码&nbsp;</a></li>
@@ -190,25 +188,19 @@ $(function(){
                     <div id="bjui-collapse0" class="panel-collapse panelContent collapse in">
                         <div class="panel-body" >
                             <ul id="bjui-tree0" class="ztree ztree_main" data-toggle="ztree" data-on-click="MainMenuClick" data-expand-all="true">
-<!--                                 <li data-id="10" data-pid="1" data-url="configEdit" data-tabid="configEdit">系统设置</li> -->
+                                <li data-id="10" data-pid="1" data-url="configEdit" data-tabid="configEdit">系统设置</li>
                                 <li data-id="18" data-pid="1" data-url="adminList" data-tabid="adminList">管理员列表</li>
 <!--                                 <li data-id="11" data-pid="1" data-url="articleCateList" data-tabid="articleCateList">文章栏目</li> -->
 <!--                                 <li data-id="12" data-pid="1" data-url="articleList" data-tabid="articleList">文章管理</li> -->
-<!--                                 <li data-id="12" data-pid="1" data-url="productCateList" data-tabid="productCateList">产品分类</li> -->
-<!--                                 <li data-id="12" data-pid="1" data-url="productList" data-tabid="productList">产品管理</li> -->
+                                <li data-id="12" data-pid="1" data-url="productCateList" data-tabid="productCateList">产品分类</li>
+                                <li data-id="12" data-pid="1" data-url="productList" data-tabid="productList">产品管理</li>
 <!--                                 <li data-id="15" data-pid="1" data-url="messageList" data-tabid="messageList">留言管理</li> -->
-<!-- 								<li data-id="15" data-pid="1" data-url="userAdd" data-tabid="userAdd">添加下级渠道</li> -->
-								<li data-id="15" data-pid="1" data-url="subShopList" data-tabid="subShopList">商户管理</li>
-<!--                                 <li data-id="15" data-pid="1" data-url="userList" data-tabid="userList">商户管理</li> -->
-								<c:if test="${flag == '1'}">
-                                <li data-id="15" data-pid="1" data-url="userList" data-tabid="userList">用户管理</li>
-                                </c:if>
-<!--                                 <li data-id="15" data-pid="1" data-url="financialList" data-tabid="financialList">财务明细</li> -->
                                 <li data-id="15" data-pid="1" data-url="ordersList" data-tabid="ordersList">订单管理</li>
+                                <li data-id="15" data-pid="1" data-url="userList" data-tabid="userList">会员管理</li>
+                                <li data-id="15" data-pid="1" data-url="financialList" data-tabid="financialList">财务明细</li>
                                 <li data-id="15" data-pid="1" data-url="commissionList" data-tabid="commissionList">佣金明细</li>
-<!--                                 <li data-id="15" data-pid="1" data-url="withdrawList" data-tabid="withdrawList">提现管理</li> -->
+                                <li data-id="15" data-pid="1" data-url="withdrawList" data-tabid="withdrawList">提现管理</li>
 <!--                                 <li data-id="15" data-pid="1" data-url="rechargeList" data-tabid="rechargeList">充值管理</li> -->
-<!--                             	<li data-id="15" data-pid="1" data-url="menuList" data-tabid="menuList">菜单管理</li> -->
                             </ul>
                         </div>
                     </div>
@@ -236,15 +228,15 @@ $(function(){
             </ul>
             <div class="navtab-panel tabsPageContent layoutBox">
                 <div class="page unitBox">
-<!--                     <div class="bjui-pageHeader" style="background:#FFF;"> -->
-<!--                         <div style="padding: 0 5px;"> -->
-<!--                             <hr style="margin: 12px 0 0px;"> -->
-<!--                             <div class="row alert alert-success" style="margin: 10px 10px 10px 10px;"> -->
-<!--                             <h4 style="margin-bottom:20px;">欢迎使用GENOBIEN健诺嘉微商城程序&nbsp;<small>最好用的微商城程序</small></h4> -->
+                    <div class="bjui-pageHeader" style="background:#FFF;">
+                        <div style="padding: 0 5px;">
+                            <hr style="margin: 12px 0 0px;">
+                            <div class="row alert alert-success" style="margin: 10px 10px 10px 10px;">
+                            <h4 style="margin-bottom:20px;">欢迎使用GENOBIEN健诺嘉微商城程序&nbsp;<small>最好用的微商城程序</small></h4>
                             	
-<!--                             </div> -->
-<!--                         </div> -->
-<!--                     </div> -->
+                            </div>
+                        </div>
+                    </div>
                   <div class="bjui-pageContent">
 				    <div style="margin-top:5px; margin-right:10px;">
 				        <div class="row" style="padding: 0 8px;">
@@ -252,21 +244,21 @@ $(function(){
 				                <div class="panel panel-default">
 				                    <div class="panel-heading"><h3 class="panel-title">当前版本：<code>V1.0</code></h3></div>
 					                    <div class="panel-body bjui-doc" style="padding:0;">
-			                                <div class="col-md-6">
-			                            		<h5>昨日交易笔数：<%=0.00 %></h5>
-			                                    <h5>昨日交易金额：<%=0.00 %></h5>
-			                                    <h5>昨日活跃终端数量：<%=0.00 %></h5>
-			                                </div>
-			                                <div class="col-md-6">
-			                            		<h5>当月交易笔数：<%=0.00 %></h5>
-			                                    <h5>当月交易金额：<%=0.00 %></h5>
-			                                    <h5>当月活跃终端数量：<%=0.00 %></h5>
-			                                </div>
-			                                <div class="col-md-6">
-			                                	<h5>历史交易笔数：<%=0.00 %></h5>
-			                                	<h5>历史交易金额：<%=0.00 %></h5>
-			                                	<h5>历史活跃终端数量：<%=0.00 %></h5>
-			                                </div>
+					                        <div class="col-md-6">
+                            		<h5>服务器操作系统：<%=props.getProperty("os.name") %></h5>
+                                    <h5>服务器CPU：<%=r.availableProcessors() %>核</h5>
+                                    <h5>本地IP地址：<%=ip %></h5>
+                                    <h5>本地主机名：<%=addr.getHostName() %></h5>
+                                </div>
+                                <div class="col-md-6">
+                                	<h5>Java版本：<%=props.getProperty("java.version") %></h5>
+                                	<h5>Java安装路径：<%=props.getProperty("java.home") %></h5>
+                                	<h5>用户主目录：<%=props.getProperty("user.home") %></h5>
+                                    <h5>JVM总内存：<%=r.totalMemory()/1024L/1024L %>M</h5>
+                                    <h5>JVM剩余内存：<%=r.freeMemory()/1024L/1024L %>M</h5>
+                                    <h5>JVM CPU个数：<%=r.availableProcessors() %></h5>
+                                    
+                                </div>
 					                    </div>
 					                </div>
 					            </div>
@@ -278,8 +270,9 @@ $(function(){
         </div>
     </div>
     <footer id="bjui-footer">
-    		<span>Copyright &copy; 2014 - 2016 <a href="http://www.wesdzsw.com" target="_blank">9号购物商城</a></span>
+    		<span>Copyright &copy; 2014 - 2016 <a href="http://www.genobien.com" target="_blank">GENOBIEN健诺嘉</a></span>
     		<span>&nbsp</span> 
+    		<span>技术支持：<a>厦门东南正新信息科技有限公司</a></span>
     </footer>
 </body>
 </html>

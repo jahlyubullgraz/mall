@@ -17,17 +17,10 @@ public class User extends BaseBean implements Serializable {
 	private String name;
 	private String phone;
 	private String password;
-	private String password2;
 	private Double balance;
 	private Double commission;
 	private String superior;
 	private Integer status;
-	private String type;// 会员类别 0-普通会员；1-普通商家会员 2-白金商户 3-铂金砂商户 4- 钻石商户
-	private String typeName;
-	private String address;// 会员地址（个人会员）
-	private String remark;// 备注
-	private String superNo;// 直接上级no
-	private String qrCodeUrl;// 二维码
 
 	@Temporal(TemporalType.TIMESTAMP)
 	private Date statusDate;
@@ -39,7 +32,6 @@ public class User extends BaseBean implements Serializable {
 	private Integer loginCount;
 	private String openId;
 	private String headimgurl;
-	private String nickname;// 微信昵称
 
 	public String getName() {
 		return this.name;
@@ -159,81 +151,6 @@ public class User extends BaseBean implements Serializable {
 
 	public void setHeadimgurl(String headimgurl) {
 		this.headimgurl = headimgurl;
-	}
-
-	public String getType() {
-		return type;
-	}
-
-	public void setType(String type) {
-		this.type = type;
-	}
-
-	public String getAddress() {
-		return address;
-	}
-
-	public void setAddress(String address) {
-		this.address = address;
-	}
-
-	public String getRemark() {
-		return remark;
-	}
-
-	public void setRemark(String remark) {
-		this.remark = remark;
-	}
-
-	public String getPassword2() {
-		return password2;
-	}
-
-	public void setPassword2(String password2) {
-		this.password2 = password2;
-	}
-
-	public String getTypeName() {
-		if ("0".equals(type)) {
-			typeName = "用户会员";
-		} else if ("1".equals(type)) {
-			typeName = "普通商户";
-		} else if ("2".equals(type)) {
-			typeName = "白金商户";
-		} else if ("3".equals(type)) {
-			typeName = "铂金商户";
-		} else if ("4".equals(type)) {
-			typeName = "钻石商户";
-		}
-		return typeName;
-	}
-
-	public void setTypeName(String typeName) {
-		this.typeName = typeName;
-	}
-
-	public String getSuperNo() {
-		return superNo;
-	}
-
-	public void setSuperNo(String superNo) {
-		this.superNo = superNo;
-	}
-
-	public String getNickname() {
-		return nickname;
-	}
-
-	public void setNickname(String nickname) {
-		this.nickname = nickname;
-	}
-
-	public String getQrCodeUrl() {
-		return qrCodeUrl;
-	}
-
-	public void setQrCodeUrl(String qrCodeUrl) {
-		this.qrCodeUrl = qrCodeUrl;
 	}
 	
 }

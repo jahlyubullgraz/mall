@@ -25,12 +25,6 @@ public class Orders extends BaseBean implements Serializable {
 	@JoinColumn(name = "user")
 	@NotFound(action = NotFoundAction.IGNORE)
 	private User user;
-	
-	@ManyToOne(cascade = { javax.persistence.CascadeType.PERSIST }, fetch = FetchType.EAGER)
-	@JoinColumn(name = "shop")
-	@NotFound(action = NotFoundAction.IGNORE)
-	private User shop;
-	
 	private String productId;
 	private String productName;
 	private Double productMoney;
@@ -120,14 +114,6 @@ public class Orders extends BaseBean implements Serializable {
 
 	public void setPayDate(Date payDate) {
 		this.payDate = payDate;
-	}
-
-	public User getShop() {
-		return shop;
-	}
-
-	public void setShop(User shop) {
-		this.shop = shop;
 	}
 	
 }

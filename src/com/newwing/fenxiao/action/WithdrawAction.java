@@ -24,7 +24,6 @@ import com.newwing.fenxiao.entities.Withdraw;
 import com.newwing.fenxiao.service.IConfigService;
 import com.newwing.fenxiao.service.IFinancialService;
 import com.newwing.fenxiao.service.IUserService;
-import com.newwing.fenxiao.service.IWeixinService;
 import com.newwing.fenxiao.service.IWithdrawService;
 import com.newwing.fenxiao.utils.BjuiJson;
 import com.newwing.fenxiao.utils.BjuiPage;
@@ -40,17 +39,17 @@ public class WithdrawAction extends BaseAction {
 
 	@Resource(name = "withdrawService")
 	private IWithdrawService<Withdraw> withdrawService;
+
 	@Resource(name = "configService")
 	private IConfigService<Config> configService;
+
 	@Resource(name = "userService")
 	private IUserService<User> userService;
-	@Resource(name = "weixinService")
-	private IWeixinService weixinService;
+
 	@Resource(name = "financialService")
 	private IFinancialService<Financial> financialService;
-	
-	private String ftlFileName;
 	private Withdraw withdraw;
+	private String ftlFileName;
 
 	public void list() {
 		String key = this.request.getParameter("key");
@@ -80,12 +79,9 @@ public class WithdrawAction extends BaseAction {
 
 	public void add() {
 		this.cfg = new Configuration();
-		User user = (User)this.request.getSession().getAttribute("loginUser");
+
 		this.cfg.setServletContextForTemplateLoading(this.request.getServletContext(), "WEB-INF/templates/admin");
 		Map root = new HashMap();
-		root.put("balanceAmt", user.getBalance());
-		root.put("nickname", user.getNickname());
-		root.put("headimgurl", user.getHeadimgurl());
 		FreemarkerUtils.freemarker(this.request, this.response, this.ftlFileName, this.cfg, root);
 	}
 
@@ -96,16 +92,15 @@ public class WithdrawAction extends BaseAction {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		Double feeAmt = new Double(2);
 		JSONObject json = new JSONObject();
-		if (this.withdraw.getMoney().doubleValue() < 50.0D) {
+		if (this.withdraw.getMoney().doubleValue() <= 0.0D) {
 			json.put("status", "0");
-			json.put("message", "金额必须大于等于50");
+			json.put("message", "金额必须大于0");
 		} else {
 			HttpSession session = this.request.getSession();
 			User loginUser = (User) session.getAttribute("loginUser");
 			User findUser = (User) this.userService.findById(User.class, loginUser.getId().intValue());
-			if (this.withdraw.getMoney().doubleValue() + feeAmt > findUser.getBalance().doubleValue()) {
+			if (this.withdraw.getMoney().doubleValue() > findUser.getBalance().doubleValue()) {
 				json.put("status", "0");
 				json.put("message", "余额不足");
 			} else {
@@ -116,8 +111,7 @@ public class WithdrawAction extends BaseAction {
 				boolean result = this.withdrawService.saveOrUpdate(this.withdraw);
 				if (result) {
 					findUser.setCommission(Double
-							.valueOf(findUser.getCommission().doubleValue() - this.withdraw.getMoney().doubleValue()) - feeAmt);
-					findUser.setBalance(findUser.getBalance() - this.withdraw.getMoney() - feeAmt);
+							.valueOf(findUser.getCommission().doubleValue() - this.withdraw.getMoney().doubleValue()));
 					this.userService.saveOrUpdate(findUser);
 
 					Financial financial = new Financial();
@@ -136,23 +130,8 @@ public class WithdrawAction extends BaseAction {
 					financial.setPayment("提现");
 					financial.setRemark("提现");
 					this.financialService.saveOrUpdate(financial);
-					
-					String openid = loginUser.getOpenId();
-					Double amount = this.withdraw.getMoney();
-					String partner_trade_no = financial.getNo();
-					try {
-						Map<String, String> resultMap = this.weixinService.transfer(openid, amount, partner_trade_no);
-						if (!"SUCCESS".equals(resultMap.get("state"))) {// 支付如果失败，则修改状态
-							json.put("status", "0");
-							json.put("message", "提现失败，请联系管理员");
-						} else {
-							json.put("status", "1");
-							json.put("message", "提现申请提交成功");
-						}
-					} catch (Exception e) {
-						json.put("status", "0");
-						json.put("message", "提现失败，请联系管理员");
-					}
+					json.put("status", "1");
+					json.put("message", "提现申请提交成功");
 				} else {
 					json.put("status", "0");
 					json.put("message", "提现申请提交失败，请重试");

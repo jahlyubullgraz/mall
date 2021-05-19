@@ -48,11 +48,9 @@ public class CommissionAction extends BaseAction {
 	private String ftlFileName;
 
 	public void list() {
-		User loginUser = (User)this.request.getSession().getAttribute("loginUser");
-//		String ids = this.userService.getSuperUserids(loginUser);
 		String key = this.request.getParameter("key");
-		String countHql = "select count(*) from Commission where deleted=0 and user.id = " + loginUser.getId();
-		String hql = "from Commission where deleted=0 and user.id = " + loginUser.getId();
+		String countHql = "select count(*) from Commission where deleted=0";
+		String hql = "from Commission where deleted=0";
 		if (StringUtils.isNotEmpty(key)) {
 			countHql = countHql + " and (user.name='" + key + "' or no='" + key + "')";
 			hql = hql + " and (user.name='" + key + "' or no='" + key + "')";

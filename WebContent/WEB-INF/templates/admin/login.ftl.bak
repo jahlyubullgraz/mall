@@ -2,7 +2,7 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>9号购物商城后台系统登录</title>
+<title>东南正新网络newwing后台系统登录</title>
 <script src="res/bjui/js/jquery-1.7.2.min.js"></script>
 <script src="res/bjui/js/jquery.cookie.js"></script>
 <script type="text/javascript" src="res/js/jquery.form.js"></script>
@@ -128,6 +128,7 @@ function choose_bg() {
     		</form>
         </div>
 	</div>
+	<div class="bottom">Copyright &copy; 2012 - 2015 <a href="http://www.newwing.com" target="_blank">东南正新网络</a> <a href="http://bbs.newwing.com" target="_blank">东南正新网络论坛</a> <a href="http://www.919dns.com" target="_blank">919数据中心</a></div>
 </div>
 </body>
 </html>

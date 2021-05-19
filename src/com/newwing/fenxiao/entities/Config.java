@@ -33,8 +33,6 @@ public class Config extends BaseBean implements Serializable {
 	private String alipayKey;
 	private Integer onlinePayIsOpen;
 	private Integer rechargeCardIsOpen;
-	private Double totalProfitAmt;
-	private Double unProfitAmt;
 
 	public String getLogo() {
 		return this.logo;
@@ -219,21 +217,5 @@ public class Config extends BaseBean implements Serializable {
 	public void setRechargeCardIsOpen(Integer rechargeCardIsOpen) {
 		this.rechargeCardIsOpen = rechargeCardIsOpen;
 	}
-
-	public Double getTotalProfitAmt() {
-		return totalProfitAmt;
-	}
-
-	public void setTotalProfitAmt(Double totalProfitAmt) {
-		this.totalProfitAmt = totalProfitAmt;
-	}
-
-	public Double getUnProfitAmt() {
-		return unProfitAmt;
-	}
-
-	public void setUnProfitAmt(Double unProfitAmt) {
-		this.unProfitAmt = unProfitAmt;
-	}
-
+	
 }

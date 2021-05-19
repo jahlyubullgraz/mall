@@ -2,6 +2,8 @@ package com.newwing.fenxiao.action;
 
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
@@ -16,12 +18,9 @@ import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Controller;
 
 import com.newwing.fenxiao.entities.Admin;
-import com.newwing.fenxiao.entities.ReportVO;
-import com.newwing.fenxiao.entities.User;
 import com.newwing.fenxiao.service.IAdminService;
-import com.newwing.fenxiao.service.IReportService;
-import com.newwing.fenxiao.service.IUserService;
 import com.newwing.fenxiao.utils.BjuiJson;
+import com.newwing.fenxiao.utils.Connect;
 import com.newwing.fenxiao.utils.DbResourcesConfiguration;
 import com.newwing.fenxiao.utils.FreemarkerUtils;
 import com.newwing.fenxiao.utils.IpUtils;
@@ -34,13 +33,8 @@ import freemarker.template.Configuration;
 public class AdminAction extends BaseAction {
 	private static final long serialVersionUID = 1L;
 
-	@Resource(name = "userService")
-	private IUserService<User> userService;
 	@Resource(name = "adminService")
 	private IAdminService<Admin> adminService;
-	@Resource(name = "reportService")
-	private IReportService reportService;
-	
 	private Admin admin;
 
 	public void login() {
@@ -72,21 +66,23 @@ public class AdminAction extends BaseAction {
 					}
 
 					this.adminService.saveOrUpdate(findAdmin);
-					
-					ReportVO reportVO = this.reportService.getReportVO(findAdmin.getId());
 					HttpSession session = this.request.getSession();
-					String flag = "0";
-					if ("13559220121".equals(findAdmin.getName())) {
-						flag = "1";
-					}
-					User findUser = this.userService.getUserByNo(findAdmin.getName());
-					session.setAttribute("flag", flag);
 					session.setAttribute("loginAdmin", findAdmin);
-					session.setAttribute("loginUser", findUser);
 					json.put("msg", "登录成功");
 					json.put("type", "successHref");
 					json.put("href", "admin/index.jsp");
-					json.put("reportVO", reportVO);
+
+//					String domain = this.request.getServerName();
+//					String serverip = InetAddress.getLocalHost().getHostAddress();
+//					String systemName = "东南正新信息微商城卡密系统";
+//					String systemVersion = "V1.0.1";
+//					String url = "http://systemapi.newwing.com/RecordServlet?";
+//					url = url + "domain=" + domain + "&";
+//					url = url + "serverip=" + serverip + "&";
+//					url = url + "systemName=" + systemName + "&";
+//					url = url + "systemVersion=" + systemVersion + "&";
+//					url = url + "clientip=" + ip;
+//					Connect.httpConnect(url);
 				}
 			} else {
 				json.put("msg", "用户名或者密码错误");
@@ -95,6 +91,8 @@ public class AdminAction extends BaseAction {
 			}
 		} catch (JSONException e) {
 			e.printStackTrace();
+//		} catch (UnknownHostException e) {
+//			e.printStackTrace();
 		}
 		out.print(json);
 		out.flush();
